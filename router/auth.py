@@ -1,0 +1,82 @@
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+from typing import Annotated
+from database import SessionLocal
+from models import Users
+from datetime import timedelta, timezone, datetime
+from fastapi.responses import JSONResponse
+from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from jose import jwt, JWTError
+router=APIRouter()
+bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+OAuth2_bearer = OAuth2PasswordBearer(tokenUrl='/auth/login')
+
+SECRET_KEY='6513173aa95f2bfc106d0e0034318f4793824a136609571b8de547b8e2ef54d5'
+ALGORITHM='HS256'
+class CreateUsers(BaseModel):
+    email : str
+    username : str
+    firstname : str
+    lastname : str
+    password : str
+def authenticateUser(username, password, db):
+    user=db.query(Users).filter(Users.username==username).first()   
+    if user is None:
+        return False
+    if bcrypt_context.verify(password, user.hashed_password):
+        return user
+    return False
+def create_acess_token(username:str, user_id:int, expires_delta:timedelta):
+    encode={'sub':username, 'id':user_id}
+    expires=datetime.now(timezone.utc)+expires_delta
+    encode.update({'exp':expires})
+    return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
+
+def get_current_user(token: Annotated[str, Depends(OAuth2_bearer)]):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get('sub')
+        user_id: int = payload.get('id')
+        if username is None or user_id is None:
+            raise HTTPException(status_code=404, detail='User not found')
+        return {'username': username, 'id': user_id,}
+    except:
+        raise HTTPException(status_code=404, detail='User not found')
+
+
+
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+db_dependency = Annotated[Session, Depends(get_db)]
+@router.post('/register')
+def create_users(db : db_dependency, new_user : CreateUsers):
+    user_model = Users(
+        email = new_user.email,
+        username = new_user.username,
+        firstname = new_user.firstname,
+        lastname = new_user.lastname,
+        hashed_password = bcrypt_context.hash(new_user.password),
+        is_active = True,
+        
+    )
+    db.add(user_model)
+    db.commit()
+    db.refresh(user_model)
+    return JSONResponse(status_code=201, content={'message' : 'User created successfully'})
+
+@router.post('/login')
+def login_user(db:db_dependency,form_data:Annotated[OAuth2PasswordRequestForm, Depends()]):
+    user=authenticateUser(form_data.username, form_data.password, db)
+    if not user:
+        return "Authentication failed"
+    token=create_acess_token(user.username, user.id, timedelta(minutes=40))
+    return {'access_token': token, 'token_type': 'bearer'}

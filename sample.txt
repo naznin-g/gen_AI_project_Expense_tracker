@@ -1,0 +1,72 @@
+[
+  {
+    "email": "alice@example.com",
+    "username": "alice01",
+    "firstname": "Alice",
+    "lastname": "Sterling",
+    "password": "Alice@123"
+  },
+  {
+    "email": "bob@example.com",
+    "username": "bob02",
+    "firstname": "Bob",
+    "lastname": "Marley",
+    "password": "Bob@123"
+  },
+  {
+    "email": "carol@example.com",
+    "username": "carol03",
+    "firstname": "Carol",
+    "lastname": "Ahmed",
+    "password": "Carol@123"
+  },
+  {
+    "email": "david@example.com",
+    "username": "david04",
+    "firstname": "David",
+    "lastname": "Khan",
+    "password": "David@123"
+  },
+  {
+    "email": "emma@example.com",
+    "username": "emma05",
+    "firstname": "Emma",
+    "lastname": "Islam",
+    "password": "Emma@123"
+  },
+  {
+    "email": "farhan@example.com",
+    "username": "farhan06",
+    "firstname": "Farhan",
+    "lastname": "Hossain",
+    "password": "Farhan@123"
+  },
+  {
+    "email": "grace@example.com",
+    "username": "grace07",
+    "firstname": "Grace",
+    "lastname": "Chowdhury",
+    "password": "Grace@123"
+  },
+  {
+    "email": "hasan@example.com",
+    "username": "hasan08",
+    "firstname": "Hasan",
+    "lastname": "Karim",
+    "password": "Hasan@123"
+  },
+  {
+    "email": "irene@example.com",
+    "username": "irene09",
+    "firstname": "Irene",
+    "lastname": "Sultana",
+    "password": "Irene@123"
+  },
+  {
+    "email": "jack@example.com",
+    "username": "jack10",
+    "firstname": "Jack",
+    "lastname": "Mahmud",
+    "password": "Jack@123"
+  }
+]
