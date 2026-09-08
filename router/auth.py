@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException,status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from typing import Annotated
@@ -40,7 +40,7 @@ def get_current_user(token: Annotated[str, Depends(OAuth2_bearer)]):
         username: str = payload.get('sub')
         user_id: int = payload.get('id')
         if username is None or user_id is None:
-            raise HTTPException(status_code=404, detail='User not found')
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid Token')
         return {'username': username, 'id': user_id,}
     except:
         raise HTTPException(status_code=404, detail='User not found')
@@ -77,6 +77,10 @@ def create_users(db : db_dependency, new_user : CreateUsers):
 def login_user(db:db_dependency,form_data:Annotated[OAuth2PasswordRequestForm, Depends()]):
     user=authenticateUser(form_data.username, form_data.password, db)
     if not user:
-        return "Authentication failed"
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+        )
+        
     token=create_acess_token(user.username, user.id, timedelta(minutes=40))
     return {'access_token': token, 'token_type': 'bearer'}
